@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviourPun
     public string playerPrefabPath;
     public Transform[] spawnPoints;
     public float respawnTime;
+    public PlayerController[] players;
 
     private int playersInGame;
     public static GameManager instance;
@@ -27,11 +28,13 @@ public class GameManager : MonoBehaviourPun
 
     void Start()
     {
+        players = new PlayerController[PhotonNetwork.PlayerList.Length];
         photonView.RPC("ImInGame", RpcTarget.AllBuffered);
     }
 
     void SpawnPlayer()
     {
         GameObject playerObj = PhotonNetwork.Instantiate(playerPrefabPath, spawnPoints[Random.Range(0, spawnPoints.Length)].position, Quaternion.identity);
+        playerObj.GetComponent<PhotonView>().RPC("Initialize", RpcTarget.All, PhotonNetwork.LocalPlayer);
     }
 }
