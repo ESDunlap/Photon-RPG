@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviourPun
 {
+    [HideInInspector]
     public int id;
     [Header("Info")]
     public float moveSpeed;
@@ -23,6 +24,7 @@ public class PlayerController : MonoBehaviourPun
     public Player photonPlayer;
     public SpriteRenderer sr;
     public Animator weaponAnim;
+    public HeaderInfo headerInfo;
 
     public static PlayerController me;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -40,10 +42,10 @@ public class PlayerController : MonoBehaviourPun
         if (Input.GetMouseButtonDown(0) && Time.time - lastAttackTime > attackRate)
             Attack();
         float mouseX = (Screen.width/2)-Input.mousePosition.x;
-        if(mouseX < 0)
-            weaponAnim.transform.parent.localScale = new Vector3(-1, 1, 1);
+        if(mouseX > 0)
+            weaponAnim.transform.parent.localScale = new Vector3(-4, 4, 4);
         else
-            weaponAnim.transform.parent.localScale = new Vector3(1, 1, 1);
+            weaponAnim.transform.parent.localScale = new Vector3(4, 4, 4);
     }
 
     void Move()
@@ -69,12 +71,15 @@ public class PlayerController : MonoBehaviourPun
         }
         // play attack animation
         weaponAnim.SetTrigger("Attack");
+        Enemy enemy = hit.collider.GetComponent<Enemy>();
+        enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, damage);
     }
 
     [PunRPC]
     public void TakeDamage(int damage)
     {
         curHp -= damage;
+        headerInfo.GetComponent<PhotonView>().RPC("UpdateHealthBar", RpcTarget.All, curHp);
         if (curHp < 0)
         {
             Die();
@@ -109,6 +114,7 @@ public class PlayerController : MonoBehaviourPun
         transform.position = spawnPos;
         curHp = maxHp;
         rig.isKinematic = false;
+        headerInfo.GetComponent<PhotonView>().RPC("UpdateHealthBar", RpcTarget.All, curHp);
     }
 
     [PunRPC]
@@ -122,12 +128,14 @@ public class PlayerController : MonoBehaviourPun
             me = this;
         else
             rig.isKinematic = true;
+        headerInfo.Initialize(player.NickName, maxHp);
     }
 
     [PunRPC]
     void Heal(int amountToHeal)
     {
         curHp = Mathf.Clamp(curHp + amountToHeal, 0, maxHp);
+        headerInfo.GetComponent<PhotonView>().RPC("UpdateHealthBar", RpcTarget.All, curHp);
         // update the health bar
     }
 
@@ -135,6 +143,7 @@ public class PlayerController : MonoBehaviourPun
     void GiveGold(int goldToGive)
     {
         gold += goldToGive;
+        GameUI.instance.UpdateGoldText(gold);
         // update the ui
     }
 }
