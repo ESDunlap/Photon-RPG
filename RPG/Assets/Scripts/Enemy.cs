@@ -3,10 +3,16 @@ using UnityEngine.UI;
 using Photon.Pun;
 using System.Collections;
 
+public enum EnemyType
+{
+    Melee,
+    Range
+}
 
 public class Enemy : MonoBehaviourPun
 {
     [Header("Info")]
+    public EnemyType type;
     public string enemyName;
     public float moveSpeed;
     public int curHp;
@@ -16,7 +22,7 @@ public class Enemy : MonoBehaviourPun
     private PlayerController targetPlayer;
     public float playerDetectRate = 0.2f;
     private float lastPlayerDetectTime;
-    public string objectToSpawnOnDeath;
+    public string[] objectToSpawnOnDeath;
     [Header("Attack")]
     public int damage;
     public float attackRate;
@@ -48,6 +54,11 @@ public class Enemy : MonoBehaviourPun
                 Vector3 dir = targetPlayer.transform.position - transform.position;
                 rig.linearVelocity = dir.normalized * moveSpeed;
             }
+            else if (dist < attackRange && (type == EnemyType.Range))
+            {
+                Vector3 dir = targetPlayer.transform.position - transform.position;
+                rig.linearVelocity = -dir.normalized * moveSpeed;
+            }
             else
             {
                 rig.linearVelocity = Vector2.zero;
@@ -75,7 +86,11 @@ public class Enemy : MonoBehaviourPun
                 if (player == targetPlayer)
                 {
                     if (dist > chaseRange)
+                    {
                         targetPlayer = null;
+                        rig.linearVelocity = Vector2.zero;
+                    }
+
                 }
                 else if (dist < chaseRange)
                 {
@@ -114,8 +129,8 @@ public class Enemy : MonoBehaviourPun
 
     void Die()
     {
-        if (objectToSpawnOnDeath != string.Empty)
-            PhotonNetwork.Instantiate(objectToSpawnOnDeath, transform.position, Quaternion.identity);
+        if (objectToSpawnOnDeath[0] != string.Empty)
+            PhotonNetwork.Instantiate(objectToSpawnOnDeath[Random.Range(0, objectToSpawnOnDeath.Length)], transform.position, Quaternion.identity);
         // destroy the object across the network
         PhotonNetwork.Destroy(gameObject);
     }

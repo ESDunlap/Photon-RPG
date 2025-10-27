@@ -12,6 +12,14 @@ public class Pickup : MonoBehaviourPun
     public PickupType type;
     public int value;
 
+
+    [PunRPC]
+    private void SetGold(int playerValue)
+    {
+        value = playerValue;
+    }
+
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!PhotonNetwork.IsMasterClient)

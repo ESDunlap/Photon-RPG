@@ -19,7 +19,8 @@ public class HeaderInfo : MonoBehaviour
     [PunRPC]
     void UpdateHealthBar (int value)
     {
-        bar.fillAmount += (float)value / maxValue;
+        bar.fillAmount = (float)value / maxValue;
+        Debug.Log(value / maxValue);
     }
 
 }

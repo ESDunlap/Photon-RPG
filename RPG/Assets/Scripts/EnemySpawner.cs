@@ -4,12 +4,15 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviourPun
 {
-    public string enemyPrefabPath;
-    public float maxEnemies;
+    public string enemyMeleePrefabPath;
+    public string enemyRangePrefabPath;
+    public float maxMeleeEnemies;
+    public float maxRangeEnemies;
     public float spawnRadius;
     public float spawnCheckTime;
     private float lastSpawnCheckTime;
-    private List<GameObject> curEnemies = new List<GameObject>();
+    private List<GameObject> curMeleeEnemies = new List<GameObject>();
+    private List<GameObject> curRangeEnemies = new List<GameObject>();
 
     void Update()
     {
@@ -25,17 +28,31 @@ public class EnemySpawner : MonoBehaviourPun
     void TrySpawn()
     {
         // remove any dead enemies from the curEnemies list
-        for (int x = 0; x < curEnemies.Count; ++x)
+        for (int x = 0; x < curMeleeEnemies.Count; ++x)
         {
-            if (!curEnemies[x])
-                curEnemies.RemoveAt(x);
+            if (!curMeleeEnemies[x])
+                curMeleeEnemies.RemoveAt(x);
+        }
+        for (int x = 0; x < curRangeEnemies.Count; ++x)
+        {
+            if (!curRangeEnemies[x])
+                curRangeEnemies.RemoveAt(x);
         }
         // if we have maxed out our enemies, return
-        if (curEnemies.Count >= maxEnemies)
+        if ((curRangeEnemies.Count + curMeleeEnemies.Count) >= (maxMeleeEnemies + maxRangeEnemies))
             return;
         // otherwise, spawn an enemy
         Vector3 randomInCircle = Random.insideUnitCircle * spawnRadius;
-        GameObject enemy = PhotonNetwork.Instantiate(enemyPrefabPath, transform.position + randomInCircle, Quaternion.identity);
-        curEnemies.Add(enemy);
+        bool spawnMelee = curMeleeEnemies.Count <= curRangeEnemies.Count;
+        if (spawnMelee && (curMeleeEnemies.Count < maxMeleeEnemies))
+        {
+            GameObject enemy = PhotonNetwork.Instantiate(enemyMeleePrefabPath, transform.position + randomInCircle, Quaternion.identity);
+            curMeleeEnemies.Add(enemy);
+        }
+        else if (curRangeEnemies.Count < maxRangeEnemies)
+        {
+            GameObject enemy = PhotonNetwork.Instantiate(enemyRangePrefabPath, transform.position + randomInCircle, Quaternion.identity);
+            curRangeEnemies.Add(enemy);
+        }
     }
 }

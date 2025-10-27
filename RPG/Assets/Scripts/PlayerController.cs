@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviourPun
     public int curHp;
     public int maxHp;
     public bool dead;
+    public string deathObj;
     [Header("Attack")]
     public int damage;
     public float attackRange;
@@ -42,10 +43,16 @@ public class PlayerController : MonoBehaviourPun
         if (Input.GetMouseButtonDown(0) && Time.time - lastAttackTime > attackRate)
             Attack();
         float mouseX = (Screen.width/2)-Input.mousePosition.x;
-        if(mouseX > 0)
+        if (mouseX > 0)
+        {
             weaponAnim.transform.parent.localScale = new Vector3(-4, 4, 4);
+            headerInfo.transform.localScale = new Vector3((float) -0.0025, (float) 0.0025, (float)0.0025);
+        }
         else
+        {
             weaponAnim.transform.parent.localScale = new Vector3(4, 4, 4);
+            headerInfo.transform.localScale = new Vector3((float)0.0025, (float)0.0025, (float)0.0025);
+        }
     }
 
     void Move()
@@ -67,12 +74,13 @@ public class PlayerController : MonoBehaviourPun
         // did we hit an enemy?
         if (hit.collider != null && hit.collider.gameObject.CompareTag("Enemy"))
         {
+            Debug.Log("Hit");
             // get the enemy and damage them
+            Enemy enemy = hit.collider.GetComponent<Enemy>();
+            enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, damage);
         }
         // play attack animation
         weaponAnim.SetTrigger("Attack");
-        Enemy enemy = hit.collider.GetComponent<Enemy>();
-        enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, damage);
     }
 
     [PunRPC]
@@ -100,11 +108,13 @@ public class PlayerController : MonoBehaviourPun
     {
         dead = true;
         rig.isKinematic = true;
+        GameObject goldPile = PhotonNetwork.Instantiate(deathObj, transform.position, Quaternion.identity);
+        goldPile.GetComponent<PhotonView>().RPC("SetGold", RpcTarget.All, gold);
+        gold = 0;
+        GameUI.instance.UpdateGoldText(gold);
         transform.position = new Vector3(0, 99, 0);
         Vector3 spawnPos = GameManager.instance.spawnPoints[Random.Range(0, GameManager.instance.spawnPoints.Length)].position;
         StartCoroutine(Spawn(spawnPos, GameManager.instance.respawnTime));
-
-
     }
 
     IEnumerator Spawn(Vector3 spawnPos,float timeToSpawn)

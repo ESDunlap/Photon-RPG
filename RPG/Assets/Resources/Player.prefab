@@ -260,9 +260,10 @@ MonoBehaviour:
   id: 0
   moveSpeed: 3
   gold: 0
-  curHp: 100
-  maxHp: 100
+  curHp: 50
+  maxHp: 50
   dead: 0
+  deathObj: GoldPilePickup
   damage: 10
   attackRange: 1
   attackRate: 0.2
@@ -454,6 +455,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6104895243206760269, guid: b7e1c5b1d7e659343a4bb42b82df433f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7112842919274730083, guid: b7e1c5b1d7e659343a4bb42b82df433f, type: 3}
+      propertyPath: m_FillAmount
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7112842919274730083, guid: b7e1c5b1d7e659343a4bb42b82df433f, type: 3}
+      propertyPath: m_FillOrigin
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

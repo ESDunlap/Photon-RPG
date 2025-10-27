@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 5350020962156338765}
   m_Layer: 0
   m_Name: Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -169,16 +169,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8915ac1bdf10d4541a2413aa2b3e2625, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyName: Enemy
-  moveSpeed: 3
-  curHp: 10
-  maxHp: 10
+  type: 0
+  enemyName: Ogre
+  moveSpeed: 1
+  curHp: 30
+  maxHp: 30
   chaseRange: 5
   attackRange: 2.5
   playerDetectRate: 0.2
-  objectToSpawnOnDeath: GoldPickup
-  damage: 5
-  attackRate: 0.5
+  objectToSpawnOnDeath:
+  - GoldPickup
+  - HealthPickup
+  - TreasurePickup
+  - GoldPickup
+  - GoldPickup
+  - GoldPickup
+  damage: 20
+  attackRate: 3
   healthBar: {fileID: 8150573822375252861}
   sr: {fileID: 232581475758693921}
   rig: {fileID: 5442240470557592913}
